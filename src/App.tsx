@@ -1,19 +1,51 @@
 import { useCallback, useMemo, useState } from "react"
-import { MapView } from "./components/MapView"
+import { MapView, type LayerHealth } from "./components/MapView"
 import { LayerPanel } from "./components/LayerPanel"
 import { SiteBriefPanel } from "./components/SiteBriefPanel"
 import { Attribution } from "./components/Attribution"
 import { buildSiteBrief, type SiteBrief } from "./lib/siteBrief"
-import { DEFAULT_RADIUS_MI, type LayerKey } from "./lib/sources"
+import { DEFAULT_RADIUS_MI, SW_TEST_AOI, type LayerKey } from "./lib/sources"
 
 const INITIAL_LAYERS: Record<LayerKey, boolean> = {
   topo: true,
-  orphaned: false,
+  orphaned: true,
+  operating: true,
   nmWells: false,
   coWells: false,
-  transmission: true,
-  substations: true,
+  transmission: false,
+  substations: false,
   flood: false,
+}
+
+const INITIAL_HEALTH = Object.fromEntries(
+  (Object.keys(INITIAL_LAYERS) as LayerKey[]).map((k) => [k, { state: "idle" as const }]),
+) as LayerHealth
+
+function emptyBrief(lon: number, lat: number, radiusMi: number, message: string): SiteBrief {
+  return {
+    lon, lat, radiusMi,
+    elevationFt: null,
+    slopeNote: "UNKNOWN",
+    wells: {
+      orphaned: null,
+      operatingActive: null,
+      operatingAll: null,
+      nmActive: null,
+      nmAll: null,
+      coPr: null,
+      coAll: null,
+    },
+    power: { nearestSubMi: null, nearestSubName: null, nearestLineMi: null, nearestLineKv: null },
+    flood: { flag: "UNKNOWN", zones: [] },
+    unknowns: [
+      "MW headroom / interconnection capacity",
+      "Fiber routes and carrier identity",
+      "Title, easements, zoning, and politics",
+      "Dollar walk-away / land economics",
+      "Site brief failed to load",
+    ],
+    errors: [message],
+  }
 }
 
 export default function App() {
@@ -22,9 +54,15 @@ export default function App() {
   const [pin, setPin] = useState<{ lon: number; lat: number } | null>(null)
   const [brief, setBrief] = useState<SiteBrief | null>(null)
   const [loading, setLoading] = useState(false)
+  const [health, setHealth] = useState<LayerHealth>(INITIAL_HEALTH)
+  const [flyTo, setFlyTo] = useState<{ lon: number; lat: number; zoom: number } | null>(null)
 
   const onToggle = useCallback((key: LayerKey) => {
     setLayers((prev) => ({ ...prev, [key]: !prev[key] }))
+  }, [])
+
+  const onHealth = useCallback((key: LayerKey, next: LayerHealth[LayerKey]) => {
+    setHealth((prev) => (prev[key]?.detail === next.detail && prev[key]?.state === next.state ? prev : { ...prev, [key]: next }))
   }, [])
 
   const onPin = useCallback(async (lon: number, lat: number) => {
@@ -32,41 +70,51 @@ export default function App() {
     setLoading(true)
     setBrief(null)
     try {
-      const next = await buildSiteBrief(lon, lat, radiusMi)
-      setBrief(next)
+      setBrief(await buildSiteBrief(lon, lat, radiusMi))
     } catch (e) {
-      setBrief({
-        lon, lat, radiusMi,
-        elevationFt: null,
-        slopeNote: "UNKNOWN",
-        wells: { orphaned: null, nmOcd: null, coOgcc: null },
-        power: { nearestSubMi: null, nearestSubName: null, nearestLineMi: null, nearestLineKv: null },
-        flood: { flag: "UNKNOWN", zones: [] },
-        fiberNote: "UNKNOWN",
-        unknowns: ["Site brief failed to load"],
-        errors: [e instanceof Error ? e.message : "Brief failed"],
-      })
+      setBrief(emptyBrief(lon, lat, radiusMi, e instanceof Error ? e.message : "Brief failed"))
     } finally {
       setLoading(false)
     }
   }, [radiusMi])
 
-  const subtitle = useMemo(() => "Click-to-pin DC site screening for the Southwest corridor", [])
+  const onJumpPermian = useCallback(() => {
+    setFlyTo({ lon: SW_TEST_AOI.lon, lat: SW_TEST_AOI.lat, zoom: SW_TEST_AOI.zoom })
+  }, [])
+
+  const subtitle = useMemo(
+    () => "Interactive topo + gas wells for test-fit / forecasting. Click any pin.",
+    [],
+  )
 
   return (
     <div className="app-shell">
       <header className="topbar">
         <div>
-          <div className="brand">Fluidstack AI</div>
-          <h1>DC Site Fit</h1>
+          <div className="brand">NLT143 RESEARCH by David T Phung</div>
+          <h1>Site Fit</h1>
           <p>{subtitle}</p>
         </div>
-        <div className="topbar-badge">Production screen · free public layers</div>
+        <div className="topbar-badge">Leave-behind for Fluidstack / Nick · not official Fluidstack</div>
       </header>
       <div className="workspace">
-        <LayerPanel layers={layers} onToggle={onToggle} radiusMi={radiusMi} onRadius={setRadiusMi} />
+        <LayerPanel
+          layers={layers}
+          onToggle={onToggle}
+          radiusMi={radiusMi}
+          onRadius={setRadiusMi}
+          health={health}
+          onJumpPermian={onJumpPermian}
+        />
         <main className="map-stage">
-          <MapView layers={layers} pin={pin} onPin={onPin} radiusMi={radiusMi} />
+          <MapView
+            layers={layers}
+            pin={pin}
+            onPin={onPin}
+            radiusMi={radiusMi}
+            onHealth={onHealth}
+            flyTo={flyTo}
+          />
         </main>
         <SiteBriefPanel brief={brief} loading={loading} onClose={() => { setBrief(null); setPin(null) }} />
       </div>
