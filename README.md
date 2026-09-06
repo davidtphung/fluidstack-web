@@ -1,9 +1,13 @@
-# Fluidstack Land Desk (public)
+# Siteline (public CDN backup)
 
-Public Site Fit map for Fluidstack Land Desk. **Not Sere / Shinkei.**
+Public screening map from NLT143 RESEARCH by David T Phung. Not an official product.
 
-Live: https://rawcdn.githack.com/davidtphung/fluidstack-web/claw/site-fit/index.html
+Pin a site. Read the lines.
 
-Sere (`sere.davidtphung.com`) is forbidden for Fluidstack. User GitHub Pages 301s to Sere, so `github.io` is not a public URL for this app.
+Primary: https://rawcdn.githack.com/davidtphung/siteline-map/main/index.html
 
-Hard rules: never invent wells, owners, prices, MW, or comps. Unknowns stay UNKNOWN. No em dashes in UI copy.
+Backup: https://rawcdn.githack.com/davidtphung/fluidstack-web/claw/site-fit/index.html
+
+`davidtphung.github.io` is not a Siteline public URL.
+
+Hard rules: never invent wells, owners, prices, MW, or comps. Unknowns stay UNKNOWN. FCC BDC is broadband/fiber availability, not as-built plant.
