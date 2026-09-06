@@ -6,6 +6,8 @@ import {
   CO_PR_WHERE,
   DEFAULT_RADIUS_MI,
   ENDPOINTS,
+  FCC_PAGE_SIZE,
+  FCC_TECH_FIBER,
   NETL_ACTIVE_WHERE,
   NM_ACTIVE_WHERE,
 } from "./sources"
@@ -30,6 +32,16 @@ export type SiteBrief = {
     nearestSubName: string | null
     nearestLineMi: number | null
     nearestLineKv: number | null
+  }
+  broadband: {
+    geography: string | null
+    geoid: string | null
+    totalBsls: number | null
+    servedBsls: number | null
+    fiberServedBsls: number | null
+    uniqueFiberProviders: number | null
+    fccFiberProviders: string[]
+    note: string
   }
   flood: { flag: "YES" | "NO" | "UNKNOWN"; zones: string[] }
   unknowns: string[]
@@ -180,13 +192,100 @@ async function floodFlag(lon: number, lat: number) {
   return { flag: sfha || high ? ("YES" as const) : ("YES" as const), zones }
 }
 
+function numAttr(attrs: Record<string, unknown> | undefined, key: string): number | null {
+  const v = attrs?.[key]
+  return typeof v === "number" && !Number.isNaN(v) ? v : null
+}
+
+async function broadbandAtPin(lon: number, lat: number, errors: string[], unknowns: string[]) {
+  const empty = {
+    geography: null as string | null,
+    geoid: null as string | null,
+    totalBsls: null as number | null,
+    servedBsls: null as number | null,
+    fiberServedBsls: null as number | null,
+    uniqueFiberProviders: null as number | null,
+    fccFiberProviders: [] as string[],
+    note: "UNKNOWN",
+  }
+  const geometry = JSON.stringify({ x: lon, y: lat, spatialReference: { wkid: 4326 } })
+  let attrs: Record<string, unknown> | undefined
+  try {
+    const data = await arcgisQuery(ENDPOINTS.fccBdcH3, {
+      where: "1=1",
+      geometry,
+      geometryType: "esriGeometryPoint",
+      inSR: "4326",
+      spatialRel: "esriSpatialRelIntersects",
+      outFields: "GEOID,TotalBSLs,ServedBSLs,ServedBSLsFiber,UniqueProvidersFiber",
+      returnGeometry: "false",
+      outSR: "4326",
+      resultRecordCount: "1",
+    })
+    attrs = data.features?.[0]?.attributes
+  } catch (e) {
+    const issue = describeIssue(e, "services8.arcgis.com")
+    errors.push(`FCC BDC H3: ${issue.message}`)
+    unknowns.push("FCC broadband / fiber availability (CORS or network)")
+    return { ...empty, note: issue.message }
+  }
+  if (!attrs) {
+    unknowns.push("FCC BDC H3 cell at pin (no intersecting hex)")
+    return { ...empty, note: "No FCC BDC H3 cell returned at this pin" }
+  }
+  const geoid = typeof attrs.GEOID === "string" ? attrs.GEOID : null
+  const fiberServedBsls = numAttr(attrs, "ServedBSLsFiber")
+  const uniqueFiberProviders = numAttr(attrs, "UniqueProvidersFiber")
+  let fccFiberProviders: string[] = []
+  if (geoid) {
+    try {
+      const escaped = geoid.replace(/'/g, "''")
+      const names = new Set<string>()
+      let offset = 0
+      while (names.size < 40) {
+        const recs = await arcgisQuery(ENDPOINTS.fccBdcH3Records, {
+          where: `GEOID = '${escaped}' AND Technology = ${FCC_TECH_FIBER}`,
+          outFields: "ProviderName,Technology,ServedBSLs",
+          returnGeometry: "false",
+          resultOffset: String(offset),
+          resultRecordCount: String(FCC_PAGE_SIZE),
+        })
+        const feats = recs.features ?? []
+        for (const rec of feats) {
+          const name = rec.attributes?.ProviderName
+          if (typeof name === "string" && name.trim()) names.add(name.trim())
+        }
+        if (!recs.exceededTransferLimit && feats.length < FCC_PAGE_SIZE) break
+        if (feats.length === 0) break
+        offset += feats.length
+      }
+      fccFiberProviders = [...names].sort((a, b) => a.localeCompare(b))
+    } catch (e) {
+      errors.push(`FCC BDC fiber records: ${describeIssue(e, "services8.arcgis.com").message}`)
+    }
+  }
+  const note = fiberServedBsls && fiberServedBsls > 0
+    ? "FCC BDC Dec 2024 reported fiber availability in this H3 cell. Not as-built plant or conduit."
+    : "No FCC-reported fiber-served BSLs in this H3 cell. Availability only; not a route map."
+  return {
+    geography: "FCC BDC H3 Resolution 8",
+    geoid,
+    totalBsls: numAttr(attrs, "TotalBSLs"),
+    servedBsls: numAttr(attrs, "ServedBSLs"),
+    fiberServedBsls,
+    uniqueFiberProviders,
+    fccFiberProviders,
+    note,
+  }
+}
+
 export async function buildSiteBrief(
   lon: number,
   lat: number,
   radiusMi = DEFAULT_RADIUS_MI,
 ): Promise<SiteBrief> {
   const errors: string[] = []
-  const unknowns = [...ALWAYS_UNKNOWN]
+  const unknowns: string[] = [...ALWAYS_UNKNOWN]
 
   let elevationFt: number | null = null
   let slope = "Slope UNKNOWN"
@@ -252,8 +351,10 @@ export async function buildSiteBrief(
     unknowns.push("FEMA flood flag")
   }
 
+  const broadband = await broadbandAtPin(lon, lat, errors, unknowns)
+
   return {
-    lon, lat, radiusMi, elevationFt, slopeNote: slope, wells, power, flood,
+    lon, lat, radiusMi, elevationFt, slopeNote: slope, wells, power, broadband, flood,
     unknowns, errors,
   }
 }
