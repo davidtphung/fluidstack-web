@@ -1,7 +1,8 @@
 import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
 
-// Dedicated Fluidstack host. Never publish under sere.
+// Dedicated Siteline CDN backup host.
+// Internal: do not host under sere.davidtphung.com.
 // site-fit/ is served from rawcdn / relative paths, so keep base relative.
 export default defineConfig({
   base: "./",
