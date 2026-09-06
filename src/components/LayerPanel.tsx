@@ -1,9 +1,9 @@
 import type { LayerKey } from "../lib/sources"
-import { SW_TEST_AOI } from "../lib/sources"
+import { CONUS_CENTER, SW_TEST_AOI } from "../lib/sources"
 import type { LayerHealth } from "./MapView"
 
 const LABELS: Record<LayerKey, string> = {
-  topo: "OpenTopo hillshade",
+  topo: "USA topography (OpenTopoMap)",
   orphaned: "Abandoned: NETL orphaned",
   operating: "Operating: NETL Active",
   nmWells: "NM OCD Active (state depth)",
@@ -14,11 +14,14 @@ const LABELS: Record<LayerKey, string> = {
 }
 
 type Props = {
+  open: boolean
+  onClose: () => void
   layers: Record<LayerKey, boolean>
   onToggle: (key: LayerKey) => void
   radiusMi: number
   onRadius: (n: number) => void
   health: LayerHealth
+  onJumpUsa: () => void
   onJumpPermian: () => void
 }
 
@@ -30,28 +33,55 @@ function healthMark(h: LayerHealth[LayerKey] | undefined): string {
   return "ERR"
 }
 
-export function LayerPanel({ layers, onToggle, radiusMi, onRadius, health, onJumpPermian }: Props) {
+export function LayerPanel({
+  open,
+  onClose,
+  layers,
+  onToggle,
+  radiusMi,
+  onRadius,
+  health,
+  onJumpUsa,
+  onJumpPermian,
+}: Props) {
   return (
-    <aside className="panel layer-panel">
+    <aside id="layer-panel" className={`panel layer-panel ${open ? "open" : ""}`}>
       <header className="panel-head">
-        <div className="eyebrow">Layers</div>
-        <h2>Nick pain point</h2>
+        <div className="sheet-grab" aria-hidden="true" />
+        <div className="brief-title-row">
+          <div>
+            <div className="eyebrow">Layers</div>
+            <h2>Nick pain point</h2>
+          </div>
+          <button type="button" className="ghost sheet-close" onClick={onClose} aria-label="Close layers">
+            Close
+          </button>
+        </div>
         <p className="muted">GIS topo plus operating and abandoned wells. Free API access. Screening-grade, not survey-grade.</p>
       </header>
-      <button type="button" className="jump" onClick={onJumpPermian}>
-        Jump to {SW_TEST_AOI.label}
-      </button>
+      <div className="jump-row">
+        <button type="button" className="jump" onClick={onJumpUsa}>
+          {CONUS_CENTER.label}
+        </button>
+        <button type="button" className="jump" onClick={onJumpPermian}>
+          Jump {SW_TEST_AOI.label}
+        </button>
+      </div>
       <div className="layer-list">
         {(Object.keys(LABELS) as LayerKey[]).map((key) => {
           const mark = healthMark(health[key])
+          const failed = health[key]?.state === "blocked" || health[key]?.state === "error"
           return (
-            <label key={key} className="layer-row">
+            <label key={key} className={`layer-row ${failed && layers[key] ? "layer-row-fail" : ""}`}>
               <input type="checkbox" checked={layers[key]} onChange={() => onToggle(key)} />
               <span className="layer-name">{LABELS[key]}</span>
               {layers[key] && mark && (
                 <em className={`health health-${health[key]?.state || "idle"}`} title={health[key]?.detail}>
                   {mark}
                 </em>
+              )}
+              {layers[key] && failed && (
+                <span className="layer-empty">{health[key]?.detail || "Layer failed"}</span>
               )}
             </label>
           )

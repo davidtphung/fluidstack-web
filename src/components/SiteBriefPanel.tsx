@@ -21,17 +21,28 @@ function n(v: number | null): string {
 }
 
 export function SiteBriefPanel({ brief, loading, onClose }: Props) {
+  const open = Boolean(brief || loading)
   return (
-    <aside className={`panel brief-panel ${brief || loading ? "open" : ""}`}>
+    <aside className={`panel brief-panel ${open ? "open" : ""}`} aria-hidden={!open}>
       <header className="panel-head">
+        <div className="sheet-grab" aria-hidden="true" />
         <div className="eyebrow">Site Brief</div>
         <div className="brief-title-row">
           <h2>Pinned screen</h2>
-          <button type="button" className="ghost" onClick={onClose} aria-label="Close brief">Close</button>
+          <button type="button" className="ghost sheet-close" onClick={onClose} aria-label="Close brief">Close</button>
         </div>
       </header>
-      {loading && <div className="loading">Querying confirmed public GIS sources...</div>}
-      {!loading && !brief && <p className="muted">Click the map to generate a brief.</p>}
+      {loading && (
+        <div className="loading" aria-live="polite">
+          <div className="skeleton-lines">
+            <span />
+            <span />
+            <span />
+          </div>
+          Querying confirmed public GIS sources...
+        </div>
+      )}
+      {!loading && !brief && <p className="muted brief-empty">Click the map to generate a brief.</p>}
       {brief && !loading && (
         <div className="brief-body">
           <Row label="Coordinates" value={`${brief.lat.toFixed(5)}, ${brief.lon.toFixed(5)}`} />

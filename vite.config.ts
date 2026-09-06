@@ -1,9 +1,10 @@
 import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
 
-// Dedicated Fluidstack host (Vercel). Never publish under sere.
+// Dedicated Fluidstack host. Never publish under sere.
+// site-fit/ is served from rawcdn / relative paths, so keep base relative.
 export default defineConfig({
-  base: "/",
+  base: "./",
   plugins: [react()],
   build: {
     rollupOptions: {

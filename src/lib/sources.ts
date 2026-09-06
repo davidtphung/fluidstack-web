@@ -1,5 +1,14 @@
 export const DEFAULT_RADIUS_MI = 2
 
+export const CONUS_CENTER = {
+  lon: -98.5,
+  lat: 39.5,
+  zoom: 3.8,
+  label: "CONUS overview",
+} as const
+
+export const USA_OVERVIEW = CONUS_CENTER
+
 export const SW_TEST_AOI = {
   lon: -103.7,
   lat: 32.4,
@@ -16,6 +25,11 @@ export const LAYER_IDS = {
   transmission: "hifld-tx",
   substations: "hifld-subs",
   flood: "fema-flood",
+} as const
+
+export const FALLBACK_LAYER_IDS = {
+  osm: "osm-base",
+  esriTopo: "esri-usa-topo",
 } as const
 
 export type LayerKey = keyof typeof LAYER_IDS
@@ -44,6 +58,29 @@ export const OPEN_TOPO_TILES = [
   "https://c.tile.opentopomap.org/{z}/{x}/{y}.png",
 ]
 
+/** Esri World Topo: USA coverage at CONUS overview zooms. XYZ is z/y/x. */
+export const ESRI_USA_TOPO_TILES = [
+  "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
+]
+
+export const OSM_STREET_TILES = [
+  "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
+  "https://b.tile.openstreetmap.org/{z}/{x}/{y}.png",
+  "https://c.tile.openstreetmap.org/{z}/{x}/{y}.png",
+]
+
+/** Skip heavy ArcGIS feature queries until the camera is close enough. Topo tiles always load. */
+export const HEAVY_LAYER_MIN_ZOOM: Partial<Record<LayerKey, number>> = {
+  orphaned: 6,
+  operating: 6,
+  nmWells: 6,
+  coWells: 6,
+  transmission: 5,
+  substations: 5,
+  flood: 8,
+}
+
+/** NETL status_category values are messy pipe lists. Active is the operating token we can filter. */
 export const NETL_ACTIVE_WHERE = "status_category LIKE '%Active%'"
 export const NM_ACTIVE_WHERE = "status = 'Active'"
 export const CO_PR_WHERE = "Facil_Stat = 'PR'"
@@ -58,6 +95,7 @@ export const ALWAYS_UNKNOWN = [
 export const ATTRIBUTION_LINES = [
   "USGS EPQS elevation",
   "OpenTopoMap (OSM / SRTM hillshade style)",
+  "Esri World Topo fallback (USA coverage)",
   "NETL Orphaned Wells v2 (layer 113)",
   "NETL Integrated Public Wells AugEY25 (layer 0)",
   "NM OCD wells (layer 30)",
@@ -67,5 +105,5 @@ export const ATTRIBUTION_LINES = [
 ]
 
 export const LIVE_URLS = [
-  "https://fluidstack-web.vercel.app/",
+  "https://rawcdn.githack.com/davidtphung/fluidstack-web/claw/site-fit/index.html",
 ]

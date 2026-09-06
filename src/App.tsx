@@ -4,7 +4,7 @@ import { LayerPanel } from "./components/LayerPanel"
 import { SiteBriefPanel } from "./components/SiteBriefPanel"
 import { Attribution } from "./components/Attribution"
 import { buildSiteBrief, type SiteBrief } from "./lib/siteBrief"
-import { DEFAULT_RADIUS_MI, SW_TEST_AOI, type LayerKey } from "./lib/sources"
+import { CONUS_CENTER, DEFAULT_RADIUS_MI, SW_TEST_AOI, type LayerKey } from "./lib/sources"
 
 const INITIAL_LAYERS: Record<LayerKey, boolean> = {
   topo: true,
@@ -56,6 +56,9 @@ export default function App() {
   const [loading, setLoading] = useState(false)
   const [health, setHealth] = useState<LayerHealth>(INITIAL_HEALTH)
   const [flyTo, setFlyTo] = useState<{ lon: number; lat: number; zoom: number } | null>(null)
+  const [layersOpen, setLayersOpen] = useState(false)
+
+  const briefOpen = Boolean(brief || loading)
 
   const onToggle = useCallback((key: LayerKey) => {
     setLayers((prev) => ({ ...prev, [key]: !prev[key] }))
@@ -69,6 +72,7 @@ export default function App() {
     setPin({ lon, lat })
     setLoading(true)
     setBrief(null)
+    setLayersOpen(false)
     try {
       setBrief(await buildSiteBrief(lon, lat, radiusMi))
     } catch (e) {
@@ -78,12 +82,23 @@ export default function App() {
     }
   }, [radiusMi])
 
+  const onJumpUsa = useCallback(() => {
+    setFlyTo({ lon: CONUS_CENTER.lon, lat: CONUS_CENTER.lat, zoom: CONUS_CENTER.zoom })
+    setLayersOpen(false)
+  }, [])
+
   const onJumpPermian = useCallback(() => {
     setFlyTo({ lon: SW_TEST_AOI.lon, lat: SW_TEST_AOI.lat, zoom: SW_TEST_AOI.zoom })
+    setLayersOpen(false)
+  }, [])
+
+  const onCloseBrief = useCallback(() => {
+    setBrief(null)
+    setPin(null)
   }, [])
 
   const subtitle = useMemo(
-    () => "Interactive topo + gas wells for test-fit / forecasting. Click any pin.",
+    () => "Interactive USA topo plus gas wells for test-fit screening. Tap the map to pin.",
     [],
   )
 
@@ -98,12 +113,29 @@ export default function App() {
         <div className="topbar-badge">Leave-behind for Fluidstack / Nick · not official Fluidstack</div>
       </header>
       <div className="workspace">
+        <button
+          type="button"
+          className="layers-fab"
+          onClick={() => setLayersOpen(true)}
+          aria-expanded={layersOpen}
+          aria-controls="layer-panel"
+        >
+          Layers
+        </button>
+        <div
+          className={`sheet-backdrop ${layersOpen ? "show" : ""}`}
+          onClick={() => setLayersOpen(false)}
+          hidden={!layersOpen}
+        />
         <LayerPanel
+          open={layersOpen}
+          onClose={() => setLayersOpen(false)}
           layers={layers}
           onToggle={onToggle}
           radiusMi={radiusMi}
           onRadius={setRadiusMi}
           health={health}
+          onJumpUsa={onJumpUsa}
           onJumpPermian={onJumpPermian}
         />
         <main className="map-stage">
@@ -116,7 +148,12 @@ export default function App() {
             flyTo={flyTo}
           />
         </main>
-        <SiteBriefPanel brief={brief} loading={loading} onClose={() => { setBrief(null); setPin(null) }} />
+        <div
+          className={`sheet-backdrop brief-backdrop ${briefOpen ? "show" : ""}`}
+          onClick={onCloseBrief}
+          hidden={!briefOpen}
+        />
+        <SiteBriefPanel brief={brief} loading={loading} onClose={onCloseBrief} />
       </div>
       <Attribution />
     </div>
