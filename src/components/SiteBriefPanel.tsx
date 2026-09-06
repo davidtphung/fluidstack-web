@@ -61,15 +61,32 @@ export function SiteBriefPanel({ brief, loading, onClose }: Props) {
           <Row label="CO OGCC Facil_Stat PR" value={n(brief.wells.coPr)} />
           <Row label="CO OGCC all statuses" value={n(brief.wells.coAll)} />
 
-          <div className="section-label">Power (optional HIFLD)</div>
+          <div className="section-label">Grid (HIFLD)</div>
           <Row label="Nearest substation" value={formatMiles(brief.power.nearestSubMi)} />
           <Row label="Substation name" value={brief.power.nearestSubName || "UNKNOWN"} />
           <Row label="Nearest transmission" value={formatMiles(brief.power.nearestLineMi)} />
           <Row label="Line kV if present" value={brief.power.nearestLineKv == null ? "UNKNOWN" : String(brief.power.nearestLineKv)} />
 
-          <div className="section-label">Flood</div>
+          <div className="section-label">Broadband / fiber availability (FCC BDC Dec 2024)</div>
+          <Row label="Geography" value={brief.broadband.geography || "UNKNOWN"} />
+          <Row label="GEOID" value={brief.broadband.geoid || "UNKNOWN"} />
+          <Row label="Total BSLs" value={n(brief.broadband.totalBsls)} />
+          <Row label="Served BSLs (any tech)" value={n(brief.broadband.servedBsls)} />
+          <Row label="Fiber-served BSLs" value={n(brief.broadband.fiberServedBsls)} />
+          <Row label="Unique fiber providers (count)" value={n(brief.broadband.uniqueFiberProviders)} />
+          <Row
+            label="FCC-reported fiber providers"
+            value={brief.broadband.fccFiberProviders.length
+              ? brief.broadband.fccFiberProviders.join("; ")
+              : "none returned"}
+          />
+          <Row label="Honesty note" value={brief.broadband.note} />
+          <Row label="As-built fiber / conduit" value="UNKNOWN" />
+
+          <div className="section-label">Flood / wildfire</div>
           <Row label="FEMA flood flag" value={brief.flood.flag} />
           <Row label="Flood zones" value={brief.flood.zones.length ? brief.flood.zones.join("; ") : "none returned"} />
+          <Row label="WHP wildfire" value="UNKNOWN" />
 
           <div className="section-label">Always UNKNOWN</div>
           <ul className="unknown-list">
