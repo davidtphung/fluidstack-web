@@ -161,6 +161,7 @@ button, a, input[type="checkbox"], .layer-row, .jump, .ghost, .layers-fab {
   height: 100%;
 }
 .map-stage-inner,
+.map-wrap,
 .map-root {
   position: absolute;
   inset: 0;
@@ -168,6 +169,26 @@ button, a, input[type="checkbox"], .layer-row, .jump, .ghost, .layers-fab {
   height: 100%;
 }
 .map-root { background: #0b1118; }
+.map-jump-bar {
+  position: absolute;
+  left: 0.75rem;
+  bottom: 0.75rem;
+  z-index: 5;
+  display: flex;
+  gap: 0.45rem;
+}
+.jump-btn {
+  min-height: var(--touch);
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid #2e4a55;
+  background: rgba(16, 24, 32, 0.94);
+  color: var(--cyan);
+  cursor: pointer;
+  box-shadow: var(--shadow);
+}
+.jump-btn:hover { border-color: var(--cyan); }
+.jump-permian { color: var(--amber); }
 .maplibregl-ctrl-group { background: #151a22 !important; border: 1px solid var(--border) !important; }
 .maplibregl-ctrl-group button {
   background: transparent !important;
@@ -268,6 +289,25 @@ button, a, input[type="checkbox"], .layer-row, .jump, .ghost, .layers-fab {
   z-index: 4;
 }
 .attr-footer strong { color: var(--text); font-size: 0.78rem; }
+.attr-brand-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+.builder-link {
+  color: var(--cyan);
+  text-decoration: none;
+  font-weight: 650;
+  font-size: 0.78rem;
+}
+.builder-link:hover { text-decoration: underline; }
+.layer-group { display: grid; gap: 0.45rem; }
+.layer-hint {
+  flex: 1 0 100%;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
 
 .layers-fab,
 .sheet-backdrop,
@@ -366,8 +406,13 @@ button, a, input[type="checkbox"], .layer-row, .jump, .ghost, .layers-fab {
   .brief-empty { display: none; }
 
   .attr-footer {
-    display: none;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 0.85rem;
+    padding: 0.35rem 0.75rem;
   }
+  .attr-footer span { display: none; }
 
   .maplibregl-ctrl-bottom-left,
   .maplibregl-ctrl-bottom-right {
