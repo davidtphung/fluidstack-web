@@ -1,7 +1,8 @@
 import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
 
-// CDN backup build. React + MapLibre load from import maps. Never publish under sere.
+// CDN backup build. React + MapLibre load from import maps.
+// Internal: do not host under sere.davidtphung.com.
 export default defineConfig({
   base: "./",
   plugins: [react()],
