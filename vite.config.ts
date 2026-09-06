@@ -1,9 +1,19 @@
 import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
 
-// Siteline host. Never publish under sere.
-// site-fit/ is the githack CDN build (relative assets).
+// CDN backup build. React + MapLibre load from import maps. Never publish under sere.
 export default defineConfig({
   base: "./",
   plugins: [react()],
+  build: {
+    rollupOptions: {
+      external: [
+        "react",
+        "react/jsx-runtime",
+        "react-dom",
+        "react-dom/client",
+        "maplibre-gl",
+      ],
+    },
+  },
 })
