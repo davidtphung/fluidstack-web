@@ -1,15 +1,9 @@
-# Fluidstack Land Desk
+# Fluidstack Land Desk (public)
 
-Public Site Fit map for Fluidstack Land Desk. Not Sere / Shinkei.
+Public Site Fit map for Fluidstack Land Desk. **Not Sere / Shinkei.**
 
-Vite + React + MapLibre. The browser fetches public GIS hosts directly (CORS).
+Live: https://fluidstack-web.vercel.app/
 
-Hard rules: never invent wells/owners/prices; EPQS failure leaves elev UNKNOWN; WHP not wired.
+Sere (`sere.davidtphung.com`) is forbidden for Fluidstack. User GitHub Pages 301s to Sere, so `github.io` is not a public URL for this app.
 
-`api/proxy.ts` is optional for Vercel only. The static app does not use it.
-
-## Hosting
-
-`davidtphung.github.io/*` 301s to a user-level Pages custom domain. This repo does **not** enable GitHub Pages and has **no** CNAME.
-
-Public site: Vercel production (no SSO), root path `/`.
+Hard rules: never invent wells, owners, prices, MW, or comps. Unknowns stay UNKNOWN. No em dashes in UI copy.

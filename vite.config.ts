@@ -1,8 +1,19 @@
 import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
 
-// Dedicated Fluidstack host (Vercel). Not GitHub Pages / not Sere.
+// Dedicated Fluidstack host (Vercel). Never publish under sere.
 export default defineConfig({
   base: "/",
   plugins: [react()],
+  build: {
+    rollupOptions: {
+      external: [
+        "react",
+        "react/jsx-runtime",
+        "react-dom",
+        "react-dom/client",
+        "maplibre-gl",
+      ],
+    },
+  },
 })
