@@ -160,7 +160,7 @@ export function MapView({ layers, pin, onPin, radiusMi }: Props) {
       const jobs: Promise<void>[] = []
       if (layers.orphaned) jobs.push(loadLayer(ENDPOINTS.netlOrphaned, map, "src-orphaned", "point", b).catch(() => undefined))
       if (layers.nmWells) jobs.push(loadLayer(ENDPOINTS.nmOcd, map, "src-nm", "point", b).catch(() => undefined))
-      if (layers.coWells) jobs.push(loadLayer(ENDPOINTS.hifldTx, map, "src-tx", "line", b).catch(() => undefined))
+      if (layers.coWells) jobs.push(loadLayer(ENDPOINTS.coOgcc, map, "src-co", "point", b).catch(() => undefined))
       if (layers.transmission) jobs.push(loadLayer(ENDPOINTS.hifldTx, map, "src-tx", "line", b).catch(() => undefined))
       if (layers.substations) jobs.push(loadLayer(ENDPOINTS.hifldSubs, map, "src-subs", "point", b).catch(() => undefined))
       if (layers.flood) jobs.push(loadLayer(ENDPOINTS.femaFlood, map, "src-flood", "polygon", b).catch(() => undefined))
