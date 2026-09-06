@@ -222,8 +222,26 @@ button { cursor: pointer; }
 }
 .health-ok { color: var(--live); border-color: rgba(61, 214, 140, 0.35); }
 .health-blocked, .health-error { color: var(--danger); }
+.truth {
+  display: inline-block;
+  margin-right: 0.4rem;
+  font-family: var(--mono);
+  font-style: normal;
+  font-size: 0.54rem;
+  letter-spacing: 0.06em;
+  font-weight: 500;
+  padding: 0.06rem 0.3rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  vertical-align: 0.08em;
+}
+.truth-live { color: var(--live); border-color: rgba(61, 214, 140, 0.4); }
+.truth-catalog { color: var(--soft); }
+.truth-proxy { color: var(--muted); }
+.truth-unknown { color: var(--muted); opacity: 0.8; }
 
 .jump-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.35rem; margin-top: 0.7rem; }
+.jump-row-3 { grid-template-columns: 1fr; }
 .jump {
   width: 100%;
   min-height: 32px;
