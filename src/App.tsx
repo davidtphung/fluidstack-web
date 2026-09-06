@@ -4,16 +4,17 @@ import { LayerPanel } from "./components/LayerPanel"
 import { SiteBriefPanel } from "./components/SiteBriefPanel"
 import { Attribution } from "./components/Attribution"
 import { buildSiteBrief, type SiteBrief } from "./lib/siteBrief"
-import { CONUS_CENTER, DEFAULT_RADIUS_MI, SW_TEST_AOI, type LayerKey } from "./lib/sources"
+import { DEFAULT_RADIUS_MI, SW_TEST_AOI, USA_OVERVIEW, type LayerKey } from "./lib/sources"
 
 const INITIAL_LAYERS: Record<LayerKey, boolean> = {
   topo: true,
-  orphaned: true,
-  operating: true,
+  orphaned: false,
+  operating: false,
   nmWells: false,
   coWells: false,
-  transmission: false,
-  substations: false,
+  transmission: true,
+  substations: true,
+  broadband: false,
   flood: false,
 }
 
@@ -36,10 +37,20 @@ function emptyBrief(lon: number, lat: number, radiusMi: number, message: string)
       coAll: null,
     },
     power: { nearestSubMi: null, nearestSubName: null, nearestLineMi: null, nearestLineKv: null },
+    broadband: {
+      geography: null,
+      geoid: null,
+      totalBsls: null,
+      servedBsls: null,
+      fiberServedBsls: null,
+      uniqueFiberProviders: null,
+      fccFiberProviders: [],
+      note: "Site brief failed to load",
+    },
     flood: { flag: "UNKNOWN", zones: [] },
     unknowns: [
       "MW headroom / interconnection capacity",
-      "Fiber routes and carrier identity",
+      "As-built fiber plant / conduit routes (FCC BDC is availability only)",
       "Title, easements, zoning, and politics",
       "Dollar walk-away / land economics",
       "Site brief failed to load",
@@ -83,7 +94,7 @@ export default function App() {
   }, [radiusMi])
 
   const onJumpUsa = useCallback(() => {
-    setFlyTo({ lon: CONUS_CENTER.lon, lat: CONUS_CENTER.lat, zoom: CONUS_CENTER.zoom })
+    setFlyTo({ lon: USA_OVERVIEW.lon, lat: USA_OVERVIEW.lat, zoom: USA_OVERVIEW.zoom })
     setLayersOpen(false)
   }, [])
 
@@ -98,7 +109,7 @@ export default function App() {
   }, [])
 
   const subtitle = useMemo(
-    () => "Interactive USA topo plus gas wells for test-fit screening. Tap the map to pin.",
+    () => "Pin a site. Read the lines.",
     [],
   )
 
@@ -107,10 +118,10 @@ export default function App() {
       <header className="topbar">
         <div>
           <div className="brand">NLT143 RESEARCH by David T Phung</div>
-          <h1>Site Fit</h1>
+          <h1>Siteline</h1>
           <p>{subtitle}</p>
         </div>
-        <div className="topbar-badge">Leave-behind for Fluidstack / Nick · not official Fluidstack</div>
+        <div className="topbar-badge">NLT143 RESEARCH leave-behind · not an official product</div>
       </header>
       <div className="workspace">
         <button

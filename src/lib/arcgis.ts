@@ -14,6 +14,7 @@ export type ArcGisFeature = {
 export type ArcGisResponse = {
   features?: ArcGisFeature[]
   count?: number
+  exceededTransferLimit?: boolean
   error?: { message?: string; code?: number }
 }
 
@@ -73,6 +74,45 @@ export async function arcgisFeatures(
     resultRecordCount: String(opts.limit ?? 800),
   })
   return data.features ?? []
+}
+
+export async function arcgisFeaturesPaged(
+  url: string,
+  b: BBox,
+  opts: {
+    where?: string
+    outFields?: string
+    pageSize?: number
+    maxFeatures?: number
+    geometry?: string
+    geometryType?: string
+  } = {},
+): Promise<ArcGisFeature[]> {
+  const pageSize = opts.pageSize ?? 50
+  const maxFeatures = opts.maxFeatures ?? 400
+  const all: ArcGisFeature[] = []
+  let offset = 0
+  while (all.length < maxFeatures) {
+    const take = Math.min(pageSize, maxFeatures - all.length)
+    const data = await arcgisQuery(url, {
+      where: opts.where ?? "1=1",
+      geometry: opts.geometry ?? envelopeJson(b),
+      geometryType: opts.geometryType ?? "esriGeometryEnvelope",
+      inSR: "4326",
+      spatialRel: "esriSpatialRelIntersects",
+      outFields: opts.outFields ?? "*",
+      returnGeometry: "true",
+      outSR: "4326",
+      resultOffset: String(offset),
+      resultRecordCount: String(take),
+    })
+    const feats = data.features ?? []
+    all.push(...feats)
+    if (!data.exceededTransferLimit && feats.length < take) break
+    if (feats.length === 0) break
+    offset += feats.length
+  }
+  return all
 }
 
 export function featuresToGeoJSON(

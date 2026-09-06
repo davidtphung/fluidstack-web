@@ -2,6 +2,8 @@ import type { VercelRequest, VercelResponse } from "@vercel/node"
 
 const ALLOWED_HOSTS = new Set([
   "epqs.nationalmap.gov",
+  "basemap.nationalmap.gov",
+  "server.arcgisonline.com",
   "arcgis.netl.doe.gov",
   "services5.arcgis.com",
   "data.dnrgis.state.co.us",
@@ -9,12 +11,14 @@ const ALLOWED_HOSTS = new Set([
   "services7.arcgis.com",
   "services.arcgis.com",
   "services2.arcgis.com",
+  "services8.arcgis.com",
   "hazards.fema.gov",
   "broadbandmap.fcc.gov",
   "geo.fcc.gov",
   "a.tile.opentopomap.org",
   "b.tile.opentopomap.org",
   "c.tile.opentopomap.org",
+  "tile.openstreetmap.org",
 ])
 
 function cors(res: VercelResponse) {
