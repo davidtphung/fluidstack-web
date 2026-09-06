@@ -1,5 +1,12 @@
 export type LonLat = { lon: number; lat: number }
 
+export type BBox = {
+  xmin: number
+  ymin: number
+  xmax: number
+  ymax: number
+}
+
 export function milesToDegreesLat(mi: number): number {
   return mi / 69.0
 }
@@ -8,7 +15,7 @@ export function milesToDegreesLon(mi: number, lat: number): number {
   return mi / (69.0 * Math.cos((lat * Math.PI) / 180))
 }
 
-export function bboxAround(lon: number, lat: number, radiusMi: number) {
+export function bboxAround(lon: number, lat: number, radiusMi: number): BBox {
   const dLat = milesToDegreesLat(radiusMi)
   const dLon = milesToDegreesLon(radiusMi, lat)
   return {
