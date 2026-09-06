@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Fluidstack Land Desk public web apps" />
+    <title>Fluidstack Web Hub</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0a0c0f;
+        --panel: #12161c;
+        --border: #2a3340;
+        --text: #e8eef6;
+        --muted: #93a0b3;
+        --cyan: #22d3ee;
+        --amber: #f59e0b;
+        font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(1000px 500px at 10% -10%, rgba(34, 211, 238, 0.08), transparent 55%),
+          radial-gradient(800px 400px at 90% 0%, rgba(245, 158, 11, 0.07), transparent 50%),
+          var(--bg);
+        color: var(--text);
+        padding: 2.5rem 1.25rem 3rem;
+      }
+      main { max-width: 720px; margin: 0 auto; }
+      .brand {
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        font-size: 0.72rem;
+        color: var(--cyan);
+        font-weight: 600;
+      }
+      h1 { margin: 0.35rem 0 0.5rem; font-size: clamp(1.6rem, 3vw, 2.1rem); }
+      p { color: var(--muted); line-height: 1.5; }
+      .cards { display: grid; gap: 1rem; margin-top: 1.75rem; }
+      a.card {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 1.1rem 1.2rem;
+        transition: border-color 0.15s ease, transform 0.15s ease;
+      }
+      a.card:hover { border-color: var(--cyan); transform: translateY(-1px); }
+      a.card h2 { margin: 0 0 0.35rem; font-size: 1.15rem; color: var(--text); }
+      a.card p { margin: 0; font-size: 0.92rem; }
+      .badge {
+        display: inline-block;
+        margin-top: 0.65rem;
+        font-size: 0.72rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--amber);
+      }
+      footer {
+        margin-top: 2.5rem;
+        color: var(--muted);
+        font-size: 0.78rem;
+        border-top: 1px solid var(--border);
+        padding-top: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="brand">Fluidstack Land Desk</div>
+      <h1>Public web apps</h1>
+      <p>
+        Screening tools for AI data center site fit. Free public GIS layers.
+        Never invents wells, owners, or prices. Unknowns stay unknown.
+      </p>
+      <div class="cards">
+        <a class="card" href="./site-fit/">
+          <h2>Site Fit map</h2>
+          <p>Interactive MapLibre screen with click-to-pin Site Brief and public layers.</p>
+          <span class="badge">Live</span>
+        </a>
+        <a class="card" href="./site-brief/">
+          <h2>Site Brief</h2>
+          <p>Standalone brief experience. Stub for now; full app arrives from fluidstack-site-brief.</p>
+          <span class="badge">Coming soon</span>
+        </a>
+      </div>
+      <footer>
+        Hub URLs: github.io project Pages under /fluidstack-web/. Screening aid only.
+      </footer>
+    </main>
+  </body>
+</html>
