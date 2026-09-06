@@ -1,25 +1,23 @@
 # fluidstack-web
 
-Public Fluidstack Land Desk hub for Site Fit and Site Brief.
+Public Fluidstack Land Desk apps (Site Fit + Site Brief). **Not Sere / Shinkei.**
 
-## Live URLs (after GitHub Pages is enabled)
+Do **not** enable GitHub Pages on this repo while `davidtphung.github.io/*` 301s to `sere.davidtphung.com/*`. There is no CNAME here. Do not add one.
 
-- Hub: https://davidtphung.github.io/fluidstack-web/
-- Site Fit: https://davidtphung.github.io/fluidstack-web/site-fit/
-- Site Brief (stub): https://davidtphung.github.io/fluidstack-web/site-brief/
+## Public URLs (not Sere)
 
-Prefer these github.io project URLs. Do not publish a CNAME for a custom Fluidstack host from this repo.
+| Surface | URL | Status |
+| --- | --- | --- |
+| Site Fit map | https://raw.githack.com/davidtphung/fluidstack-web/claw/site-fit/index.html | Public, no login, not Sere. First visit may show a raw.githack interstitial. |
+| Hub | https://fluidstack-web.vercel.app/ | Public, no login |
+| Site Brief | https://fluidstack-site-brief.vercel.app/ | Public, no login |
+| Vercel Site Fit | https://fluidstack-web.vercel.app/site-fit/ | HTML is public; JS bundle on this host is stale until Vercel quota resets |
 
-## Layout
+## Blockers
 
-- `index.html` hub links to `site-fit/` and `site-brief/`
-- `site-fit/` Vite + React + MapLibre app (CORS-direct GIS fetches)
-- `site-brief/` status stub until fluidstack-site-brief ships
-- `.github/workflows/pages.yml` builds Site Fit into `docs/site-fit/` and deploys the static hub
-
-## Site Fit base
-
-Vite `base` is `/fluidstack-web/site-fit/` for GitHub project Pages.
+- `https://davidtphung.github.io/fluidstack-web/` **301s** to `http://sere.davidtphung.com/fluidstack-web/` because of the user-level Pages custom domain. Do not publish Fluidstack there.
+- Vercel production deploys and git builds are **rate-limited for 24 hours** on this hobby team. MCP cannot create a new no-SSO production project until that resets.
+- Cloudflare `*.workers.dev` preview deploys a bot challenge. Claim that preview on a real Cloudflare account to get a durable `pages.dev` / workers hostname without the interstitial.
 
 ## Hard rules
 
@@ -27,13 +25,3 @@ Vite `base` is `/fluidstack-web/site-fit/` for GitHub project Pages.
 - EPQS failure leaves elevation UNKNOWN
 - WHP wildfire not wired
 - Screening aid only
-
-## Local
-
-```bash
-cd site-fit
-npm install
-npm run build
-```
-
-Build output for Pages assembly is `site-fit/dist` copied to `docs/site-fit/`.
